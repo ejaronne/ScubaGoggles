@@ -361,6 +361,9 @@ The example MITRE ATT&CK links are `T1530`, `T1537`, and `T1589`.
 
 ## Hierarchy and Flattening
 
+The catalog can also be used to [generate OSCAL selection profiles](oscal-profiles.md)
+without reparsing the Markdown baselines.
+
 OSCAL consumers should read inherited context from the containing catalog
 groups. For example, a renderer for `gws.assuredcontrols.1.1v1` should combine
 the control content with the overview, prerequisites, and common implementation

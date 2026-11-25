@@ -1,0 +1,88 @@
+# OSCAL Profiles
+
+The profile generator reads the existing [SCuBA catalog](oscal-catalog.md) and
+creates seven OSCAL profiles. It does not parse Markdown again or copy policy
+statements into another model. Each profile imports the source catalog and
+selects its existing control IDs.
+
+## Selections
+
+| Profile | Source property | Selected values |
+| --- | --- | --- |
+| BOD 25-01 | `bod-25-01-requirement` | `true` |
+| Automated Checks | `automated-check` | `true` |
+| Manual Checks | `manual-check` | `true` |
+| Configurable | `configurable` | `true` |
+| Log-Based Checks | `log-based-check` | `true` |
+| Required | `recommendation-level` | `SHALL`, `SHALL NOT`, `MUST`, `MUST NOT`, `REQUIRED` |
+| Recommended | `recommendation-level` | `SHOULD`, `SHOULD NOT`, `RECOMMENDED`, `NOT RECOMMENDED` |
+
+Badge-based selections can overlap. A BOD-designated policy can also be automated,
+manual, configurable, or log-based. Manual policies are selected using their
+explicit badge, not by assuming that every non-automated policy is manual.
+
+Required and Recommended include negative forms and equivalent RFC 2119 terms.
+The current catalog uses only SHALL, SHALL NOT, SHOULD, and SHOULD NOT. Optional
+requirements, if introduced later, would not belong to either selection.
+
+## Generate Profiles
+
+Run these commands from the repository root:
+
+```text
+python scubagoggles/utils/generate_oscal_baselines.py --output-dir dist/oscal-baseline-catalog
+python scubagoggles/utils/generate_oscal_profiles.py --catalog dist/oscal-baseline-catalog/scubagoggles-oscal-catalog-oscal-1.2.3.json --output-dir dist/oscal-profiles
+```
+
+Use `--profile required`, for example, to generate only that profile. Repeat the
+option to request several profiles. Without this option, all seven are generated.
+For a release catalog, pass its exact versioned filename to `--catalog`.
+
+The output directory contains the selected profile JSON files and
+`profile-generation-summary.json`. No files are uploaded to GitHub by this
+script. Profiles with the same name in that directory are overwritten, so use
+separate output directories for different source catalog versions.
+
+## Source Traceability
+
+Each profile preserves the source catalog's content version in
+`metadata.version`, uses the shared configured OSCAL version, and records the
+source catalog UUID, source version, selection rule, and selected-policy count
+as SCuBA properties. The generated filename includes the profile name and OSCAL
+version. The profile UUID is stable for that source catalog UUID and profile name.
+
+Imports use relative, URI-escaped paths when the catalog and profiles are on the
+same filesystem drive. Keep their relative directory layout when distributing
+them together. If they are on different Windows drives, the import uses an
+absolute file URI and is local to that machine.
+
+Generation fails on missing or ambiguous selection properties, duplicate control
+IDs, an empty selection, or a source OSCAL version different from the configured
+version. It does not silently infer missing badge values.
+
+## Profile Structure
+
+The profile records selected IDs in `imports[].include-controls[].with-ids` and
+uses `merge.as-is` to retain the source catalog's grouping when resolved. Policy
+IDs, statement IDs, related NIST references, and baseline and section context
+remain in the imported catalog. The profiles do not add or remove policy prose
+with `modify` instructions.
+
+A profile is a selection document, not a self-contained tailored catalog.
+Resolving it into a tailored catalog is a separate operation.
+
+## Validation
+
+The existing OSCAL CLI can validate a generated profile:
+
+```text
+oscal-cli validate dist/oscal-profiles/scubagoggles-oscal-profile-required-oscal-1.2.3.json
+```
+
+The pinned CLI remains version 3.2.0 with its bundled OSCAL 1.2.1 model. Its
+success is not a complete validation against OSCAL 1.2.3. No additional schema
+validator is introduced here.
+
+Unit tests check all seven selections, excluded controls, negative requirement
+forms, source traceability, portable imports, and invalid input. Workflow and
+release-artifact integration are not changed by this utility.
