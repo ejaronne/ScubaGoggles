@@ -5,6 +5,8 @@ import json
 import re
 from pathlib import Path
 
+import pytest
+
 from scubagoggles.scuba_constants import DEFAULT_OSCAL_VERSION
 
 
@@ -57,6 +59,23 @@ def source_mapping_count(path):
     return sum(len(line.split(",")) for line in mapping_lines)
 
 
+def source_bod_policy_ids(path):
+    """Return policies with a BOD badge, excluding legends and shared prose."""
+
+    text = path.read_text(encoding="utf-8")
+    policies = re.findall(
+        r"^#### (GWS\.[A-Z]+\.\d+\.\d+v\d+)[ \t]*\r?\n"
+        r"(.*?)(?=^#{1,4} |\Z)",
+        text,
+        re.M | re.S,
+    )
+    return {
+        policy_id
+        for policy_id, body in policies
+        if re.search(r"!\[BOD 25-01 Requirement\]\(", body)
+    }
+
+
 def catalog_controls(catalog):
     """Yield every control from the generated catalog."""
 
@@ -103,6 +122,44 @@ def part_values(parts, name, title=None):
 
 class GenerateOscalBaselinesTest:
     """Tests for converting Markdown baselines to one OSCAL catalog."""
+
+    @pytest.mark.parametrize(
+        ("policy_block", "expected"),
+        [
+            (
+                "[![BOD 25-01 Requirement](https://example.test/badge.svg)]"
+                "(https://example.test/directive)",
+                "true",
+            ),
+            ("Access SHALL be restricted.", "false"),
+            ("See BOD 25-01 Requirement for background.", "false"),
+            (
+                "[![BOD 99-99 Requirement](https://example.test/badge.svg)]"
+                "(https://example.test/directive)",
+                "false",
+            ),
+        ],
+    )
+    def test_bod_badge_becomes_policy_property(self, policy_block, expected):
+        """Only the policy's BOD 25-01 badge should set its BOD property."""
+
+        generator = load_generator()
+        props = generator.base_policy_props(
+            policy_id="GWS.COMMONCONTROLS.1.1v1",
+            policy_block=policy_block,
+            title_line="Access SHALL be restricted.",
+            section_title="Authentication",
+            section_id="1",
+            last_modified="November 2025",
+            mappings=[],
+            file_name="commoncontrols.md",
+        )
+
+        assert prop_values(props, "bod-25-01-requirement") == [expected]
+        assert next(
+            prop for prop in props if prop["name"] == "bod-25-01-requirement"
+        )["ns"] == generator.SCUBA_NS
+        assert_prop_order(props)
 
     def test_policy_ids_become_catalog_control_ids(self):
         """SCuBA policy IDs should become stable catalog control IDs."""
@@ -228,6 +285,13 @@ class GenerateOscalBaselinesTest:
                 for control in section_group.get("controls", [])
             ]
             assert len(group_controls) == source_policy_count(input_dir / source_baseline)
+            expected_bod_ids = source_bod_policy_ids(input_dir / source_baseline)
+            actual_bod_ids = {
+                prop_values(control["props"], "source-policy-id")[0]
+                for control in group_controls
+                if prop_values(control["props"], "bod-25-01-requirement") == ["true"]
+            }
+            assert actual_bod_ids == expected_bod_ids
             for section_group in baseline_group.get("groups", []):
                 assert_prop_order(section_group["props"])
                 assert all(
@@ -274,6 +338,10 @@ class GenerateOscalBaselinesTest:
 
         for control in controls:
             assert_prop_order(control["props"])
+            assert prop_values(control["props"], "bod-25-01-requirement") in (
+                ["true"],
+                ["false"],
+            )
             policy_ids = prop_values(control["props"], "source-policy-id")
             mappings = prop_values(
                 control["props"],

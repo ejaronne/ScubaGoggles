@@ -936,6 +936,10 @@ def base_policy_props(
         make_prop("log-based-check", "true" if "Log-Based Check" in policy_block else "false"),
         make_prop("manual-check", "true" if "Manual" in policy_block else "false"),
         make_prop("configurable", "true" if "Configurable" in policy_block else "false"),
+        make_prop(
+            "bod-25-01-requirement",
+            "true" if "![BOD 25-01 Requirement](" in policy_block else "false",
+        ),
     ]
     if len(mappings) > 1:
         props.append(make_prop("source-control-mapping-count", len(mappings)))

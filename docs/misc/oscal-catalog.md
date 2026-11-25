@@ -116,6 +116,11 @@ omitted for readability.
                     "ns": "https://cisa.gov/scuba"
                   },
                   {
+                    "name": "bod-25-01-requirement",
+                    "value": "false",
+                    "ns": "https://cisa.gov/scuba"
+                  },
+                  {
                     "name": "nist-sp800-53-rev5-fedramp-high-mapping",
                     "value": "SC-7(10)(a)",
                     "ns": "https://cisa.gov/scuba"
@@ -282,6 +287,25 @@ Shared references are de-duplicated in back matter and linked from applicable
 controls.
 This includes `### Resources` links, section overview links, and embedded
 source images such as `<img src="images/MFA.PNG">`.
+
+Policy badge images are replaced with the following properties in the SCuBA
+namespace (`https://cisa.gov/scuba`). Each policy has one value of `"true"` or
+`"false"` for each property.
+
+| Markdown badge | Policy property |
+| --- | --- |
+| BOD 25-01 Requirement | `bod-25-01-requirement` |
+| Automated Check | `automated-check` |
+| Configurable | `configurable` |
+| Log-Based Check | `log-based-check` |
+| Manual | `manual-check` |
+
+The BOD property records whether the individual policy carries the source badge.
+The shared Key Terminology legend and plain-text mentions of BOD 25-01 do not set
+it to `"true"`. A value of `"false"` means that the badge is absent, not a separate
+determination that the policy is outside the directive's scope. For example,
+`gws.commoncontrols.1.1v1` has `bod-25-01-requirement = "true"`, while the unbadged
+`gws.assuredcontrols.1.1v1` has `bod-25-01-requirement = "false"`.
 
 The FedRAMP High mapping property name is
 `nist-sp800-53-rev5-fedramp-high-mapping`.
