@@ -118,6 +118,15 @@ def make_prop(name: str, value: str) -> dict[str, str]:
     return {"name": name, "value": value, "ns": SCUBA_NS}
 
 
+def relative_file_uri(path: Path, base_dir: Path) -> str:
+    """Reference a local file relative to a directory when the drive permits."""
+
+    try:
+        return quote(Path(os.path.relpath(path, base_dir)).as_posix())
+    except ValueError:
+        return path.as_uri()
+
+
 def build_profile(catalog: JsonObject, source_href: str, name: str) -> JsonObject:
     """Build one native OSCAL profile referencing the source catalog."""
 
@@ -177,10 +186,7 @@ def generate_profiles(
         json.loads(catalog_path.read_text(encoding="utf-8")), "document"
     )
     catalog = require_object(document.get("catalog"), "catalog")
-    try:
-        source_href = quote(Path(os.path.relpath(catalog_path, output_dir)).as_posix())
-    except ValueError:
-        source_href = catalog_path.as_uri()
+    source_href = relative_file_uri(catalog_path, output_dir)
     profiles = [(name, build_profile(catalog, source_href, name)) for name in names]
     entries = []
     for name, profile in profiles:

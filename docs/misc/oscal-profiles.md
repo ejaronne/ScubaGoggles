@@ -71,6 +71,49 @@ with `modify` instructions.
 A profile is a selection document, not a self-contained tailored catalog.
 Resolving it into a tailored catalog is a separate operation.
 
+## Resolve Tailored Catalogs
+
+After generating profiles, resolve the complete set with the installed OSCAL CLI:
+
+```text
+python scubagoggles/utils/resolve_oscal_profiles.py --profile-dir dist/oscal-profiles --output-dir dist/oscal-tailored-catalogs
+```
+
+If `oscal-cli` is not available on PATH, pass `--oscal-cli` followed by the full
+path to the installed executable or Windows `.bat` launcher.
+
+The wrapper delegates selection and hierarchy resolution to OSCAL CLI. It
+validates each profile, resolves it, and validates the resulting tailored catalog.
+All catalogs must pass before they are moved into the output directory. The
+directory also receives `tailored-catalog-summary.json` with policy counts and
+source catalog identity and version. Existing output files of the same names are
+replaced after successful checks. Nothing is uploaded to GitHub.
+
+### Content Preservation
+
+The CLI can normalize Markdown whitespace and omit unused back-matter resources.
+For these selection-only profiles, the wrapper retains the CLI-selected IDs and
+hierarchy while restoring the exact source fields for retained groups, controls,
+and resources. This preserves original policy prose, shared prerequisites,
+assumptions, terminology, NIST references, and the catalog's readable field order.
+
+Resources referenced by retained groups or controls are included even if the CLI
+prunes them. References between resources are followed too. Unused resources may
+be omitted. Dangling internal links, changed hierarchy, or extra or missing
+policies cause the operation to fail rather than publish incomplete catalogs.
+
+The tailored catalog records source profile identity and inherits source catalog
+version and attribution. Its source-profile link is relative to the output
+directory. These provenance links still require the corresponding source files
+when followed, although the selected baseline text and required resources are
+present in the tailored catalog itself.
+
+This wrapper accepts only the generated selection profiles with a single local
+catalog import and `merge.as-is`. Profiles containing `modify` instructions are
+rejected; content-changing tailoring needs separate handling so original source
+values are not incorrectly restored over intentional changes. Use only trusted
+local profile and catalog files.
+
 ## Validation
 
 The existing OSCAL CLI can validate a generated profile:
