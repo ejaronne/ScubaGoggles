@@ -53,7 +53,7 @@ omitted for readability.
       "title": "Google Workspace SCuBA Baselines - OSCAL Catalog",
       "last-modified": "2026-08-18T17:33:09Z",
       "version": "v1.0.0",
-      "oscal-version": "1.2.2"
+      "oscal-version": "1.2.3"
     },
     "groups": [
       {
@@ -202,6 +202,19 @@ stays readable in GitHub's Markdown view.
 The baseline list comes from `scubagoggles/baselines/README.md`.
 The OSCAL version is defined by `DEFAULT_OSCAL_VERSION` in
 `scubagoggles/scuba_constants.py`.
+The generator currently targets OSCAL 1.2.3. Updating the version constant changes
+the declared OSCAL version, generated filename, and OSCAL reference link; it does
+not automatically enable optional features or rearrange the catalog content.
+The Python validator checks consistency with the configured version, not whether
+NIST has published a newer release. Version updates require an explicit change
+and review of the target OSCAL model, followed by the existing tests and CLI
+checks.
+
+The pinned OSCAL CLI remains at version 3.2.0, which bundles the OSCAL 1.2.1
+model. Its validation result is an additional check against that bundled model,
+not a complete validation against the catalog's declared OSCAL 1.2.3 version.
+No separate version-specific schema validator is configured.
+
 Markdown links copied into OSCAL prose are resolved to absolute GitHub URLs so
 the generated catalog remains portable outside the source repository checkout.
 

@@ -196,6 +196,16 @@ class GenerateOscalBaselinesTest:
 
         assert catalog["metadata"]["oscal-version"] == generator.DEFAULT_OSCAL_VERSION
         assert catalog["metadata"]["version"] == release_version
+        oscal_reference = next(
+            link for link in catalog["metadata"]["links"] if link["rel"] == "derived-from"
+        )
+        assert oscal_reference["href"] == (
+            "https://pages.nist.gov/OSCAL-Reference/models/"
+            f"v{DEFAULT_OSCAL_VERSION}/catalog/json-reference/"
+        )
+        assert oscal_reference["text"] == (
+            f"OSCAL Catalog Model {DEFAULT_OSCAL_VERSION} JSON reference"
+        )
         assert_prop_order(catalog["metadata"]["props"])
         assert len(catalog["groups"]) == len(discovered)
         assert len(controls) == summary["source_policies"]
