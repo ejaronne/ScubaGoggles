@@ -3,6 +3,7 @@
 import copy
 import importlib.util
 import json
+import re
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -246,3 +247,29 @@ def test_generation_covers_real_catalog(generator, tmp_path):
         assert (REPRESENTATIVE_POLICY_ID in expected) == (
             entry["name"] in {"bod-25-01", "automated", "required"}
         )
+
+
+def test_documented_json_samples_preserve_policy_content(generator):
+    """Documentation should contain parseable, internally consistent real examples."""
+
+    document = (REPO_ROOT / "docs/misc/oscal-profiles.md").read_text(encoding="utf-8")
+    examples = [json.loads(block) for block in re.findall(r"```json\s*\n(.*?)```", document, re.S)]
+    assert len(examples) == 2
+    profile = examples[0]["profile"]
+    excerpt = examples[1]["catalog"]
+    selected = profile["imports"][0]["include-controls"][0]["with-ids"]
+    assert REPRESENTATIVE_POLICY_ID in selected
+    assert next(prop["value"] for prop in profile["metadata"]["props"]
+                if prop["name"] == "selected-policy-count") == str(len(selected))
+    assert profile["metadata"]["oscal-version"] == DEFAULT_OSCAL_VERSION
+    assert excerpt["metadata"]["version"] == profile["metadata"]["version"]
+    assert profile["merge"] == {"as-is": True}
+    catalog_generator = load_module("generate_oscal_baselines.py")
+    source, _ = catalog_generator.build_catalog(REPO_ROOT / "scubagoggles/baselines")
+    original = next(control for control in generator.iter_controls(source["catalog"])
+                    if control["id"] == REPRESENTATIVE_POLICY_ID)
+    shown = next(generator.iter_controls(excerpt))
+    assert shown["id"] == original["id"]
+    assert shown["title"] == original["title"]
+    assert shown["parts"] == original["parts"]
+    assert all(prop in original["props"] for prop in shown["props"])

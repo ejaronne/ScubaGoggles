@@ -105,6 +105,255 @@ For this policy, section-level prerequisites and common implementation
 instructions remain on the parent section group. Downstream layers should refer
 to these stable control and statement IDs rather than inventing replacement IDs.
 
+## JSON Review Samples
+
+These snapshots use the development catalog version 1.1.0 (development build)
+and OSCAL 1.2.3. They show the generated JSON directly, without requiring a
+reviewer to run the utilities. They are examples, not release artifacts.
+
+<details>
+<summary>Show the complete BOD 25-01 profile (76 selected policies)</summary>
+
+```json
+{
+  "profile": {
+    "uuid": "6ef6a045-2015-58c0-a5c6-53a55195ee39",
+    "metadata": {
+      "title": "Google Workspace SCuBA BOD 25-01 Profile",
+      "last-modified": "2026-11-25T23:23:36Z",
+      "version": "1.1.0 (development build)",
+      "oscal-version": "1.2.3",
+      "props": [
+        {
+          "name": "source-catalog-uuid",
+          "value": "1a21eb2b-368d-5781-84c9-2ccadb555670",
+          "ns": "https://cisa.gov/scuba"
+        },
+        {
+          "name": "source-catalog-version",
+          "value": "1.1.0 (development build)",
+          "ns": "https://cisa.gov/scuba"
+        },
+        {
+          "name": "selection-property",
+          "value": "bod-25-01-requirement",
+          "ns": "https://cisa.gov/scuba"
+        },
+        {
+          "name": "selection-value",
+          "value": "true",
+          "ns": "https://cisa.gov/scuba"
+        },
+        {
+          "name": "selected-policy-count",
+          "value": "76",
+          "ns": "https://cisa.gov/scuba"
+        }
+      ],
+      "links": [
+        {
+          "href": "../catalog/scubagoggles-oscal-catalog-oscal-1.2.3.json",
+          "rel": "source",
+          "text": "Source SCuBA catalog"
+        }
+      ]
+    },
+    "imports": [
+      {
+        "href": "../catalog/scubagoggles-oscal-catalog-oscal-1.2.3.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "gws.commoncontrols.1.1v1",
+              "gws.commoncontrols.1.2v1",
+              "gws.commoncontrols.1.3v1",
+              "gws.commoncontrols.1.4v1",
+              "gws.commoncontrols.1.5v1",
+              "gws.commoncontrols.4.1v1",
+              "gws.commoncontrols.5.1v1",
+              "gws.commoncontrols.5.2v1",
+              "gws.commoncontrols.5.4v1",
+              "gws.commoncontrols.5.5v1",
+              "gws.commoncontrols.5.6v1",
+              "gws.commoncontrols.6.1v1",
+              "gws.commoncontrols.6.2v1",
+              "gws.commoncontrols.8.1v1",
+              "gws.commoncontrols.8.2v1",
+              "gws.commoncontrols.10.1v1",
+              "gws.commoncontrols.10.2v1",
+              "gws.commoncontrols.10.3v1",
+              "gws.commoncontrols.10.4v1",
+              "gws.commoncontrols.10.5v1",
+              "gws.commoncontrols.11.1v1",
+              "gws.commoncontrols.12.1v1",
+              "gws.commoncontrols.13.1v1",
+              "gws.commoncontrols.15.1v1",
+              "gws.commoncontrols.15.2v1",
+              "gws.gemini.1.1v1",
+              "gws.gemini.2.1v1",
+              "gws.gmail.3.1v1",
+              "gws.gmail.4.1v1",
+              "gws.gmail.4.2v1",
+              "gws.gmail.4.3v1",
+              "gws.gmail.5.1v1",
+              "gws.gmail.5.2v1",
+              "gws.gmail.5.3v1",
+              "gws.gmail.5.5v1",
+              "gws.gmail.6.1v1",
+              "gws.gmail.6.2v1",
+              "gws.gmail.6.3v1",
+              "gws.gmail.6.4v1",
+              "gws.gmail.7.1v1",
+              "gws.gmail.7.2v1",
+              "gws.gmail.7.3v1",
+              "gws.gmail.7.4v1",
+              "gws.gmail.7.5v2",
+              "gws.gmail.7.6v1",
+              "gws.gmail.7.7v1",
+              "gws.gmail.8.1v1",
+              "gws.gmail.9.1v1",
+              "gws.gmail.12.1v1",
+              "gws.gmail.15.1v1",
+              "gws.gmail.18.1v1",
+              "gws.gmail.18.2v1",
+              "gws.gmail.18.3v1",
+              "gws.calendar.1.1v1",
+              "gws.calendar.1.2v1",
+              "gws.calendar.2.1v1",
+              "gws.chat.1.1v1",
+              "gws.chat.1.2v1",
+              "gws.chat.2.1v1",
+              "gws.chat.4.1v1",
+              "gws.drivedocs.1.1v1",
+              "gws.drivedocs.1.3v2",
+              "gws.drivedocs.1.6v1",
+              "gws.drivedocs.1.8v1",
+              "gws.drivedocs.1.9v1",
+              "gws.drivedocs.2.2v1",
+              "gws.drivedocs.3.1v1",
+              "gws.drivedocs.5.1v1",
+              "gws.meet.1.1v1",
+              "gws.meet.2.1v1",
+              "gws.meet.3.1v1",
+              "gws.meet.4.1v1",
+              "gws.meet.5.1v1",
+              "gws.meet.5.2v1",
+              "gws.groups.1.1v1",
+              "gws.groups.4.1v1"
+            ]
+          }
+        ]
+      }
+    ],
+    "merge": {
+      "as-is": true
+    }
+  }
+}
+```
+
+</details>
+
+The matching tailored catalog contains all 76 selected policies. The excerpt
+below shows the representative MFA control with its section prerequisites.
+All prose shown is copied as-is. Other groups, policies, baseline introductory
+material, common implementation instructions, some properties and links, and
+back-matter resources are omitted only from this excerpt.
+
+<details>
+<summary>Show the corresponding BOD tailored-catalog excerpt</summary>
+
+```json
+{
+  "catalog": {
+    "uuid": "4f57150c-0388-4ade-bf8f-b64f1d1aa6db",
+    "metadata": {
+      "title": "Google Workspace SCuBA BOD 25-01 Tailored Catalog",
+      "version": "1.1.0 (development build)",
+      "oscal-version": "1.2.3"
+    },
+    "groups": [
+      {
+        "id": "gws-commoncontrols",
+        "class": "scuba-baseline",
+        "title": "Google Workspace Common Controls Baseline",
+        "groups": [
+          {
+            "id": "gws-commoncontrols-section-1",
+            "class": "scuba-baseline-section",
+            "title": "1. Phishing-Resistant Multifactor Authentication",
+            "parts": [
+              {
+                "name": "instruction",
+                "title": "Prerequisites",
+                "id": "gws-commoncontrols-section-1_prerequisites",
+                "prose": "GWS.COMMONCONTROLS.1.1v1 may require FIDO2-compliant security keys"
+              }
+            ],
+            "controls": [
+              {
+                "id": "gws.commoncontrols.1.1v1",
+                "class": "scuba-policy",
+                "title": "Phishing-Resistant MFA SHALL be required for all users.",
+                "props": [
+                  {
+                    "name": "source-policy-id",
+                    "value": "GWS.COMMONCONTROLS.1.1v1",
+                    "ns": "https://cisa.gov/scuba"
+                  },
+                  {
+                    "name": "bod-25-01-requirement",
+                    "value": "true",
+                    "ns": "https://cisa.gov/scuba"
+                  },
+                  {
+                    "name": "nist-sp800-53-rev5-fedramp-high-mapping",
+                    "value": "IA-2(1), IA-2(2), IA-5c, IA-5g, IA-2(8)",
+                    "ns": "https://cisa.gov/scuba"
+                  }
+                ],
+                "parts": [
+                  {
+                    "name": "statement",
+                    "id": "gws.commoncontrols.1.1v1_statement",
+                    "prose": "Phishing-Resistant MFA SHALL be required for all users."
+                  },
+                  {
+                    "name": "guidance",
+                    "title": "Policy Detail",
+                    "id": "gws.commoncontrols.1.1v1_policy_detail",
+                    "prose": "> Phishing-resistant methods:\n\nFIDO2 Security Key (directly in Google Workspace)\n\nPhone as Security Key\n\nFIDO2 Security Key (Federated from Identity Provider)\n\nFederal Personal Identity Verification (PIV) card (Federated from agency Active Directory or other identity provider).\n\nGoogle Passkeys"
+                  },
+                  {
+                    "name": "guidance",
+                    "title": "Rationale",
+                    "id": "gws.commoncontrols.1.1v1_rationale",
+                    "prose": "Weaker forms of MFA do not protect against sophisticated phishing attacks. Enforcing phishing-resistant MFA methods reduces those risks. Additionally, the Office of Management and Budget (OMB) Memorandum M-22-09, \"Moving the U.S. Government Toward Zero Trust Cybersecurity Principles,\" requires phishing-resistant MFA for FCEB agency staff, contractors, and partners."
+                  },
+                  {
+                    "name": "guidance",
+                    "title": "Implementation",
+                    "id": "gws.commoncontrols.1.1v1_implementation",
+                    "prose": "1. Under Authentication, ensure that Allow users to turn on 2-Step Verification is checked.\n2. Set Enforcement to On.\n3. Under Methods select Only security key.\n4. Under Security codes select Don't allow users to select security codes.\n5. Select Save."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+</details>
+
+The complete source catalog, seven profiles, and seven tailored catalogs can be
+shared separately as a review ZIP attached to an issue or future PR. Keep its
+directory layout intact so relative imports and source-profile links work. This
+does not require workflow changes or committing generated JSON files.
+
 ## Resolve Tailored Catalogs
 
 After generating profiles, resolve the complete set with the installed OSCAL CLI:
