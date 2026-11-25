@@ -71,6 +71,40 @@ with `modify` instructions.
 A profile is a selection document, not a self-contained tailored catalog.
 Resolving it into a tailored catalog is a separate operation.
 
+## Representative Policy Trace
+
+The representative policy for the
+[parent OSCAL-layer example](https://github.com/cisagov/ScubaGoggles/issues/1264) is
+`GWS.COMMONCONTROLS.1.1v1` in
+[commoncontrols.md](../../scubagoggles/baselines/commoncontrols.md):
+
+> Phishing-Resistant MFA SHALL be required for all users.
+
+| Field | Preserved value |
+| --- | --- |
+| Original policy ID | `GWS.COMMONCONTROLS.1.1v1` |
+| Catalog control ID | `gws.commoncontrols.1.1v1` |
+| Statement part ID | `gws.commoncontrols.1.1v1_statement` |
+| Baseline group | `gws-commoncontrols` |
+| Section group | `gws-commoncontrols-section-1` |
+
+In the current source, this policy has the BOD and Automated Check badges and a
+SHALL recommendation level. It therefore appears in the BOD 25-01, Automated
+Checks, and Required profiles, but not the other four selections.
+
+The trace through the generated BOD example is:
+
+1. The full catalog contains the control and its statement part with the IDs above.
+2. The BOD profile imports that catalog and includes the control ID in
+   `imports[].include-controls[].with-ids`.
+3. The BOD tailored catalog contains the same control and statement IDs, original
+   policy text, and related NIST properties. Its parent groups retain the baseline
+   introduction, assumptions, terminology, and applicable section-level guidance.
+
+For this policy, section-level prerequisites and common implementation
+instructions remain on the parent section group. Downstream layers should refer
+to these stable control and statement IDs rather than inventing replacement IDs.
+
 ## Resolve Tailored Catalogs
 
 After generating profiles, resolve the complete set with the installed OSCAL CLI:
@@ -116,6 +150,20 @@ catalog import and `merge.as-is`. Profiles containing `modify` instructions are
 rejected; content-changing tailoring needs separate handling so original source
 values are not incorrectly restored over intentional changes. Use only trusted
 local profile and catalog files.
+
+## Scope and Automation
+
+This implementation supports **selection-based tailoring**: choosing existing
+requirements and producing a self-contained catalog of that selection. It does
+not change requirement text, set parameter values, add local requirements, or
+support arbitrary OSCAL profile modifications.
+
+The new utilities generate files locally. The existing GitHub workflow still
+generates and uploads only the full baseline catalog; it does not yet generate or
+upload profiles or tailored catalogs. Adding these outputs to workflow and
+release artifacts is planned for the
+[later OSCAL integration sub-issue](https://github.com/cisagov/ScubaGoggles/issues/1294). No new
+artifact upload or release behavior is introduced here.
 
 ## Validation
 

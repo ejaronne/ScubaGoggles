@@ -14,6 +14,7 @@ from scubagoggles.scuba_constants import DEFAULT_OSCAL_VERSION
 REPO_ROOT = Path(__file__).resolve().parents[4]
 UTILITY_DIR = REPO_ROOT / "scubagoggles" / "utils"
 SCUBA_NS = "https://cisa.gov/scuba"
+REPRESENTATIVE_POLICY_ID = "gws.commoncontrols.1.1v1"
 BADGE_PROPERTIES = (
     "bod-25-01-requirement", "automated-check", "manual-check",
     "configurable", "log-based-check",
@@ -225,6 +226,12 @@ def test_generation_covers_real_catalog(generator, tmp_path):
     source = source_dir / source_summary["output"]
     catalog = json.loads(source.read_text())["catalog"]
     controls = list(generator.iter_controls(catalog))
+    assert any(
+        part["id"] == REPRESENTATIVE_POLICY_ID + "_statement"
+        and part["name"] == "statement"
+        for control in controls if control["id"] == REPRESENTATIVE_POLICY_ID
+        for part in control["parts"]
+    )
     output = tmp_path / "profiles"
     summary = generator.generate_profiles(source, output)
     for entry in summary["profiles"]:
@@ -236,3 +243,6 @@ def test_generation_covers_real_catalog(generator, tmp_path):
         ]
         profile = json.loads((output / entry["output"]).read_text())["profile"]
         assert profile["imports"][0]["include-controls"][0]["with-ids"] == expected
+        assert (REPRESENTATIVE_POLICY_ID in expected) == (
+            entry["name"] in {"bod-25-01", "automated", "required"}
+        )
