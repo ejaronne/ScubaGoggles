@@ -88,6 +88,9 @@ All catalogs must pass before they are moved into the output directory. The
 directory also receives `tailored-catalog-summary.json` with policy counts and
 source catalog identity and version. Existing output files of the same names are
 replaced after successful checks. Nothing is uploaded to GitHub.
+Published files inherit the output directory's normal permissions rather than
+retaining the private staging folder's permissions, so Windows editors can read
+the resulting catalogs.
 
 ### Content Preservation
 

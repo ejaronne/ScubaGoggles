@@ -4,6 +4,8 @@ import copy
 import importlib.util
 import json
 import subprocess
+import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -248,3 +250,59 @@ def test_profile_directory_traversal_is_rejected(resolver, scenario, tmp_path):
     summary_path.write_text(json.dumps(summary), encoding="utf-8")
     with pytest.raises(ValueError, match="profile directory"):
         resolver.resolve_profiles(scenario["profile_dir"], tmp_path / "tailored", "test-cli")
+
+
+def test_publish_catalog_replaces_content_without_leaving_staging_files(resolver, tmp_path):
+    """Publishing should work for both new and existing output files."""
+
+    staged = tmp_path / "staged.json"
+    destination = tmp_path / "catalog.json"
+    staged.write_bytes(b'{"catalog": {}}\n')
+    destination.write_bytes(b"old")
+    resolver.publish_catalog(staged, destination)
+    assert destination.read_bytes() == staged.read_bytes()
+    resolver.publish_catalog(destination, destination)
+    assert destination.read_bytes() == staged.read_bytes()
+    assert not list(tmp_path.glob(".publish-*.tmp"))
+
+
+def test_failed_publication_keeps_existing_output(resolver, tmp_path, monkeypatch):
+    """A failed replacement must not truncate the old catalog or leave a partial file."""
+
+    staged = tmp_path / "staged.json"
+    destination = tmp_path / "catalog.json"
+    staged.write_bytes(b"new")
+    destination.write_bytes(b"old")
+
+    def fail_replace(_self, _target):
+        raise OSError("replacement failed")
+
+    monkeypatch.setattr(Path, "replace", fail_replace)
+    with pytest.raises(OSError, match="replacement failed"):
+        resolver.publish_catalog(staged, destination)
+    assert destination.read_bytes() == b"old"
+    assert not list(tmp_path.glob(".publish-*.tmp"))
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows ACL regression")
+@pytest.mark.parametrize("repair_existing", [False, True])
+def test_published_catalog_inherits_windows_permissions(resolver, tmp_path, repair_existing):
+    """Private staging permissions must not prevent the user from reading output."""
+
+    output = tmp_path / "output"
+    output.mkdir()
+    destination = output / "catalog.json"
+    with tempfile.TemporaryDirectory(dir=tmp_path) as private_dir:
+        staged = Path(private_dir) / "staged.json"
+        staged.write_bytes(b'{"catalog": {}}\n')
+        if repair_existing:
+            staged.replace(destination)
+            staged = destination
+        resolver.publish_catalog(staged, destination)
+    result = subprocess.run(
+        ["icacls", str(destination)],
+        check=True, capture_output=True, text=True,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+    )
+    assert "(I)" in result.stdout
+    assert destination.read_bytes() == b'{"catalog": {}}\n'

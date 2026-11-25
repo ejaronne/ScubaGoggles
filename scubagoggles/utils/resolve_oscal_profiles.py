@@ -10,6 +10,7 @@ import json
 import subprocess
 import sys
 import tempfile
+import uuid
 from collections.abc import Iterator
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -216,6 +217,19 @@ def resolve_one(profile_path: Path, temporary_path: Path, destination: Path, cli
     return len(list(iter_controls(resolved)))
 
 
+def publish_catalog(staged_path: Path, destination: Path) -> None:
+    """Publish validated bytes with the destination directory's permissions."""
+
+    publication = destination.parent / f".publish-{uuid.uuid4().hex}.tmp"
+    try:
+        # A direct move would retain TemporaryDirectory's private Windows ACL.
+        with publication.open("xb") as handle:
+            handle.write(staged_path.read_bytes())
+        publication.replace(destination)
+    finally:
+        publication.unlink(missing_ok=True)
+
+
 def resolve_profiles(profile_dir: Path, output_dir: Path, cli: str = "oscal-cli") -> JsonObject:
     """Resolve a generated profile set, publishing output only when all checks pass."""
 
@@ -248,7 +262,9 @@ def resolve_profiles(profile_dir: Path, output_dir: Path, cli: str = "oscal-cli"
             results.append({"name": entry["name"], "output": destination.name, "policies": count})
             print(f"Resolved {entry['name']}: {count} policies", flush=True)
         for result in results:
-            (Path(temporary_dir) / result["output"]).replace(output_dir / result["output"])
+            publish_catalog(
+                Path(temporary_dir) / result["output"], output_dir / result["output"]
+            )
     result_summary: JsonObject = {
         "source-catalog-uuid": summary["source-catalog-uuid"],
         "source-catalog-version": summary["source-catalog-version"],
